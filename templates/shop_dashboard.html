@@ -1,0 +1,135 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Dashboard</title>
+</head>
+<body>
+    
+
+    
+    <h2>Welcome, {{ shop_name }}</h2>
+
+    <p><a href="{{ url_for('add_product') }}">➕ Add New Product</a></p>
+
+    <h3>Your Products</h3>
+
+    {% if products %}
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Offer</th>
+                <th>Quantity</th>
+            </tr>
+            {% for product in products %}
+            <tr>
+                <td>
+                    {% if product[6] %}
+                        <img src="{{ url_for('static', filename='uploads/' + product[6]) }}" width="80">
+                    {% else %}
+                        No Image
+                    {% endif %}
+                </td>
+                <td>{{ product[2] }}</td>
+                <td>₹{{ product[3] }}</td>
+                <td>{{ product[4] or '-' }}</td>
+                <td>{{ product[5] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>🛒 No products added yet.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('index') }}">← Back to Home</a>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .logo {
+            max-height: 100px;
+            margin-bottom: 15px;
+        }
+        .product-img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="container mt-4">
+
+    <div class="text-center">
+        <h2 class="mb-3">Welcome, {{ shop_name }}</h2>
+
+        {% if shop_logo %}
+            <img src="{{ url_for('static', filename='shop_logos/' ~ shop_logo) }}" alt="Shop Logo" class="logo rounded shadow">
+        {% else %}
+            <p class="text-muted">No logo uploaded</p>
+        {% endif %}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <h4>Your Products</h4>
+        <a href="{{ url_for('add_product') }}" class="btn btn-sm btn-primary">➕ Add New Product</a>
+    </div>
+
+    {% if products %}
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Offer</th>
+                    <th>Quantity</th>
+                    <th>Actions</th> <!-- 👈 new column -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product[6] %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ product[6]) }}" class="product-img">
+                        {% else %}
+                            <span class="text-muted">No Image</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product[2] }}</td>
+                    <td>₹{{ product[3] }}</td>
+                    <td>{{ product[4] or '-' }}</td>
+                     <td>{{ product[5] }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_product', product_id=product[0]) }}" class="btn btn-sm btn-warning">✏️ Edit</a>
+
+                        <form method="POST" action="{{ url_for('delete_product', product_id=product[0]) }}" style="display:inline;" onsubmit="return confirm('Delete this product?');">
+                            <button type="submit" class="btn btn-sm btn-danger">🗑 Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-warning mt-3">🛒 No products added yet.</div>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="btn btn-link mt-3">← Back to Home</a>
+
+</div>
+
+</body>
+</html>

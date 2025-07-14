@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #f8f9fa, #e2e6ea);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .form-box {
+            max-width: 650px;
+            margin: 80px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-box">
+        <h2 class="text-center">🏪 Register Your Shop</h2>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Shop Name</label>
+                <div class="input-group">
+                    <span class="input-group-text">🏷️</span>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Anwar Fashion House" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Shop Type</label>
+                <div class="input-group">
+                    <span class="input-group-text">🛍️</span>
+                    <input type="text" name="shop_type" class="form-control" placeholder="e.g. Sarees, Grocery" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text">👤</span>
+                    <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text">🔒</span>
+                    <input type="password" name="password" class="form-control" placeholder="Choose a password" required minlength="4">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Contact</label>
+                <div class="input-group">
+                    <span class="input-group-text">📞</span>
+                    <input type="tel" name="contact" class="form-control" placeholder="Mobile number" required pattern="[0-9]{10}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <textarea name="address" class="form-control" rows="3" placeholder="Shop full address" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Upload Shop Logo</label>
+                <input type="file" name="logo" class="form-control" accept="image/*" required>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Register Shop</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{{ url_for('index') }}" class="btn btn-link">← Back to Home</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f1f1f1;
+        }
+        .form-container {
+            margin-top: 60px;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container mx-auto">
+        <h3 class="text-center">🛍️ Register Your Shop</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label>Shop Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Eg: Fancy World" required>
+            </div>
+            <div class="mb-3">
+                <label>Shop Type</label>
+                <input type="text" name="shop_type" class="form-control" placeholder="Eg: Dress, Kirana, Electrical" required>
+            </div>
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Choose a password" required>
+            </div>
+            <div class="mb-3">
+                <label>Contact</label>
+                <input type="text" name="contact" class="form-control" placeholder="Eg: 9876543210" required>
+            </div>
+            <div class="mb-3">
+                <label>Address</label>
+                <textarea name="address" class="form-control" rows="2" placeholder="Shop address" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label>Upload Shop Logo</label>
+                <input type="file" name="logo" class="form-control">
+            </div>
+            <div class="text-center">
+                <button class="btn btn-success w-100">Register Shop</button>
+            </div>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('shop_login') }}">Already have an account? Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html> -->

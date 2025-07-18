@@ -7,11 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script>
-      // Dark mode preference
-      if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
+      tailwind.config = {
+        darkMode: 'class'
+      };
+    </script>
+    <script>
+      // Early theme application to avoid flash
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
       } else {
-        document.documentElement.classList.remove("dark");
+        document.documentElement.classList.remove('dark');
       }
     </script>
 
@@ -36,7 +41,10 @@
       }
     </style>
 </head>
+
+
 <body class="bg-gray-100 dark:bg-gray-900 dark:text-white min-h-screen flex items-center justify-center px-4">
+  
     <div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 space-y-6">
 
         <div class="flex justify-between items-center mb-4">

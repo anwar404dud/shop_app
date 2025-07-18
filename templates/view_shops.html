@@ -36,8 +36,9 @@
     <select name="shop_type"
       class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
       <option value="">All Categories</option>
-      <option value="Grocery" {% if shop_type_filter == 'Grocery' %}selected{% endif %}>Grocery</option>
-      <option value="Dress" {% if shop_type_filter == 'Dress' %}selected{% endif %}>Dress</option>
+      {% for stype in shop_types %}
+        <option value="{{ stype }}" {% if shop_type_filter == stype %}selected{% endif %}>{{ stype }}</option>
+      {% endfor %}
     </select>
 
     <button type="submit"

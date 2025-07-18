@@ -207,6 +207,11 @@ def view_shops():
     conn = sqlite3.connect('db.sqlite3')
     c = conn.cursor()
 
+    # Get distinct shop types
+    c.execute('SELECT DISTINCT shop_type FROM shops')
+    shop_types = [row[0] for row in c.fetchall()]
+
+    # Get all shops
     c.execute('SELECT * FROM shops')
     shops_data = c.fetchall()
 
@@ -218,25 +223,31 @@ def view_shops():
             'shop_type': shop[2],
             'contact': shop[5],
             'address': shop[6],
+            'logo': shop[7],
             'products': []
         }
-        # Filter shop_type if selected
+
+        # Filter by shop_type if applied
         if shop_type_filter and shop_dict['shop_type'].lower() != shop_type_filter.lower():
             continue
 
         c.execute('SELECT * FROM products WHERE shop_id = ?', (shop[0],))
         products = c.fetchall()
 
-        # Filter products by search term
         if search:
-            products = [p for p in products if search in p[2].lower()]  # p[2] is product name
+            products = [p for p in products if search in p[2].lower()]
 
         if products:
             shop_dict['products'] = products
             shops.append(shop_dict)
 
     conn.close()
-    return render_template('view_shops.html', shops=shops, search=search, shop_type_filter=shop_type_filter)
+    return render_template('view_shops.html',
+                           shops=shops,
+                           search=search,
+                           shop_type_filter=shop_type_filter,
+                           shop_types=shop_types)
+
 
 @app.route('/customer/register', methods=['GET', 'POST'])
 def customer_register():

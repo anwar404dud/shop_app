@@ -32,6 +32,8 @@
 #     app.run(debug=True)
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+# from flask_dance.contrib.google import make_google_blueprint, google
+from werkzeug.utils import secure_filename
 import sqlite3
 from models import create_tables
 create_tables()
@@ -175,7 +177,7 @@ def add_product():
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
-        offer = request.form['offer']
+        offer = request.form.get('offer') or 0  # defaults to 0 if not filled
         quantity = request.form['quantity']
         image = request.files['image']
 
@@ -716,6 +718,18 @@ def inject_user_data():
         cart = session.get('cart', {})
         return sum(cart.values())
     return dict(get_cart_count=get_cart_count, current_user=session.get('user'))
+
+# google_bp = make_google_blueprint(client_id="...", client_secret="...", redirect_to="google_callback")
+# app.register_blueprint(google_bp, url_prefix="/login")
+
+# @app.route("/google-callback")
+# def google_callback():
+#     resp = google.get("/oauth2/v2/userinfo")
+#     if not resp.ok:
+#         return redirect(url_for("shop_login"))
+#     user_info = resp.json()
+#     # Do something with user_info
+#     return redirect(url_for("shop_dashboard"))  # example
 
 
 # Run Flask

@@ -1,62 +1,100 @@
 {% extends 'base.html' %}
+{% block title %}Browse Shops{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-  <h2 class="text-2xl font-bold mb-4">🛍️ Browse Local Shops & Products</h2>
-  <!-- Flash messages -->
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div class="mb-4">
-        {% for message in messages %}
-          <div class="bg-blue-100 border border-blue-300 text-blue-700 px-4 py-2 rounded mb-2">
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
+<script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+  <script>
+    // Early theme application to avoid flash
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+<!-- 🌙 Dark Mode Toggle Button (Page-only) -->
+<div class="flex justify-end mb-4">
+  <button onclick="toggleDarkMode()" class="px-3 py-1 rounded bg-gray-800 text-white dark:bg-yellow-300 dark:text-black transition">
+    🌗 Toggle Mode
+    </button>
+</div>
 
-  <!-- Search and Filter -->
-  <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6" action="{{ url_for('view_shops') }}">
-    <input type="text" name="search" class="border border-gray-300 rounded px-3 py-2 w-full" placeholder="Search product..." value="{{ search }}">
-    <select name="shop_type" class="border border-gray-300 rounded px-3 py-2 w-full">
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold mb-6 text-center sm:text-left">🛍️ Browse Local Shops & Products</h2>
+
+  <!-- 🔍 Search & Filter -->
+  <form method="GET" action="{{ url_for('view_shops') }}"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <input type="text" name="search" placeholder="Search product..."
+      value="{{ search }}"
+      class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+    <select name="shop_type"
+      class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
       <option value="">All Categories</option>
       <option value="Grocery" {% if shop_type_filter == 'Grocery' %}selected{% endif %}>Grocery</option>
       <option value="Dress" {% if shop_type_filter == 'Dress' %}selected{% endif %}>Dress</option>
     </select>
-    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded">Search</button>
+
+    <button type="submit"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition duration-300">
+      🔍 Search
+    </button>
   </form>
 
   {% if shops %}
     {% for shop in shops %}
-      <div class="bg-white rounded-xl shadow-md p-6 mb-10">
-        <div class="flex justify-between items-center border-b pb-4 mb-4">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10 transition-all">
+        <!-- 🏪 Shop Header -->
+        <div
+          class="flex flex-wrap justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 gap-4">
           <div>
-            <h3 class="text-xl font-semibold">🏪 {{ shop.name }}</h3>
-            <p class="text-sm text-gray-500">📞 {{ shop.contact or 'No contact' }} | 📍 {{ shop.address or 'No address' }}</p>
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">🏪 {{ shop.name }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              📞 {{ shop.contact or 'No contact' }} |
+              📍 {{ shop.address or 'No address' }}
+            </p>
           </div>
           {% if shop.logo %}
-            <img src="{{ url_for('static', filename='shop_logos/' ~ shop.logo) }}" class="h-16 w-auto object-contain" alt="Shop Logo">
+            <img src="{{ url_for('static', filename='shop_logos/' ~ shop.logo) }}"
+              class="h-16 w-auto object-contain rounded border border-gray-300 dark:border-gray-600"
+              alt="Shop Logo" />
           {% endif %}
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <!-- 🛍️ Product Grid -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {% for product in shop.products %}
-            <div class="bg-gray-50 rounded-lg shadow hover:shadow-lg transition p-4">
+            <div
+              class="bg-gray-50 dark:bg-gray-900 rounded-xl shadow hover:shadow-xl transition p-4 flex flex-col justify-between">
               {% if product[6] %}
-                <img src="{{ url_for('static', filename='uploads/' ~ product[6]) }}" class="h-48 w-full object-cover rounded-t-lg" alt="{{ product[2] }}">
+                <img src="{{ url_for('static', filename='uploads/' ~ product[6]) }}"
+                  class="h-48 w-full object-cover rounded-lg mb-3" alt="{{ product[2] }}" />
               {% else %}
-                <div class="h-48 bg-gray-200 flex items-center justify-center text-gray-500">No Image</div>
+                <div
+                  class="h-48 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-300 flex items-center justify-center rounded-lg mb-3">
+                  No Image
+                </div>
               {% endif %}
-              <div class="mt-4">
-                <h4 class="font-bold text-lg">{{ product[2] }}</h4>
-                <p class="text-green-600 font-semibold">₹{{ product[3] }}</p>
-                <p class="text-sm text-gray-500">Available: {{ product[5] }}</p>
-                <form method="POST" action="{{ url_for('add_to_cart', product_id=product[0]) }}" class="mt-2 flex gap-2">
-                  <input type="number" name="quantity" min="1" max="{{ product[5] }}" value="1" class="w-16 border rounded px-2 py-1 text-center" required>
-                  <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">🛒 Add</button>
-                </form>
+              <div class="space-y-1">
+                <h4 class="font-semibold text-lg text-gray-900 dark:text-white truncate">{{ product[2] }}</h4>
+                <p class="text-green-600 dark:text-green-400 font-semibold">₹{{ product[3] }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Available: {{ product[5] }}</p>
               </div>
+              <form method="POST" action="{{ url_for('add_to_cart', product_id=product[0]) }}"
+                class="mt-3 flex items-center gap-2">
+                <input type="number" name="quantity" min="1" max="{{ product[5] }}" value="1"
+                  class="w-16 text-center px-2 py-1 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  required />
+                <button type="submit"
+                  class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition">🛒
+                  Add</button>
+              </form>
             </div>
           {% endfor %}
         </div>
@@ -67,7 +105,30 @@
   {% endif %}
 
   <div class="text-center mt-6">
-    <a href="{{ url_for('index') }}" class="text-blue-600 hover:underline">← Back to Home</a>
+    <a href="{{ url_for('index') }}" class="text-blue-600 dark:text-blue-400 hover:underline">← Back to Home</a>
   </div>
 </div>
+
+<!-- 🔁 Auto-dismiss Flash -->
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(el => {
+      el.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+      setTimeout(() => el.remove(), 700);
+    });
+  }, 3000);
+
+  // Dark Mode Script (Page-local only)
+  function toggleDarkMode() {
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+
+  // Apply saved theme
+  (function () {
+    const dark = localStorage.getItem('theme') === 'dark';
+    document.documentElement.classList.toggle('dark', dark);
+  })();
+</script>
 {% endblock %}

@@ -18,15 +18,54 @@
       document.documentElement.classList.remove('dark');
     }
   </script>
+  <style>
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.35;
+      z-index: -1;
+    }
+    .dark body::before {
+      opacity: 0.25;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen flex items-center justify-center p-4">
   <div class="w-full max-w-xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-center w-full">🛍️ Register Your Shop</h2>
-      <button onclick="toggleDarkMode()" class="px-3 py-1 rounded bg-gray-800 text-white dark:bg-yellow-300 dark:text-black transition">
+  <a href="{{ url_for('index') }}" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition duration-300">
+    🏠 Home
+  </a>
+  <h2 class="text-2xl font-bold text-center flex-1 text-center">🛍️ Register Your Shop</h2>
+  <button onclick="toggleDarkMode()" class="px-3 py-1 rounded bg-gray-800 text-white dark:bg-yellow-300 dark:text-black transition">
     🌗 Toggle Mode
-    </button>
+  </button>
+</div>
+
+    <!-- Flash messages (insert above form) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mb-4 space-y-2">
+      {% for category, message in messages %}
+        <div class="alert px-4 py-2 rounded-lg text-sm font-medium
+                    {% if category == 'danger' %}
+                      bg-red-100 text-red-800 dark:bg-red-800 dark:text-white
+                    {% elif category == 'success' %}
+                      bg-green-100 text-green-800 dark:bg-green-700 dark:text-white
+                    {% else %}
+                      bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white
+                    {% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
     </div>
+  {% endif %}
+{% endwith %}
+
     <form method="POST" enctype="multipart/form-data" class="space-y-5">
       <div>
         <label class="block text-sm font-medium mb-1">Shop Name</label>
@@ -67,7 +106,15 @@
       Already have an account?
       <a href="{{ url_for('shop_login') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Login</a>
     </div>
+    
   </div>
+
+  <script>
+    function togglePassword() {
+      const pwd = document.getElementById("password");
+      pwd.type = pwd.type === "password" ? "text" : "password";
+    }
+  </script>
 
   <!-- 🔁 Auto-dismiss Flash -->
 <script>

@@ -1,99 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Local Shops Display App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(to right, #f8f9fa, #e2e6ea);
-            font-family: 'Segoe UI', sans-serif;
-            padding-bottom: 60px; /* for footer */
-        }
-        .main-box {
-            margin-top: 80px;
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .section-title {
-            margin-top: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 5px;
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Local Shops Display App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-light: url('https://images.unsplash.com/photo-1588854337236-6881d1b270fe?auto=format&fit=crop&w=1500&q=80');
+      --bg-dark: url('https://images.unsplash.com/photo-1584772931374-8285c116016e?auto=format&fit=crop&w=1500&q=80');
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-light) no-repeat center center fixed;
+      background-size: cover;
+      color: #212529;
+      transition: background 0.5s, color 0.3s;
+    }
+
+    .dark-mode body {
+      background: var(--bg-dark) no-repeat center center fixed;
+      background-size: cover;
+      color: #f8f9fa;
+    }
+
+    .main-box {
+      margin-top: 80px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .dark-mode .main-box {
+      background-color: rgba(33, 37, 41, 0.9);
+    }
+
+    h1 {
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 5px;
+    }
+
+    .dark-mode .section-title {
+      border-color: #6c757d;
+    }
+
+    .btn {
+      transition: all 0.3s ease-in-out;
+      margin: 5px 5px;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(33, 37, 41, 0.85);
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .mode-toggle {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .navbar, .dark-mode footer {
+      background-color: rgba(0, 0, 0, 0.85) !important;
+    }
+  </style>
 </head>
+
 <body>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="#"><i class="fas fa-store"></i> Local Shops</a>
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
+    
+    <button class="mode-toggle" onclick="toggleMode()" title="Toggle Dark/Light">
+      🌓
+    </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav ml-auto">
         {% if 'customer_id' in session %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('view_cart') }}">🛒 Cart</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('customer_orders') }}">📦 My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('customer_logout') }}">Logout</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('view_cart') }}">🛒 Cart</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_orders') }}">📦 My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_logout') }}">Logout</a></li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('customer_register') }}">Register</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_register') }}">Register</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
 
+<!-- Main Content -->
 <div class="container">
-    <div class="main-box text-center">
-        <h1>🏬 Welcome to the Local Shops Display App</h1>
-        <p class="text-muted">This is the homepage for customers to view shops and products.</p>
+  <div class="main-box text-center">
+    <h1>🏬 Welcome to the Local Shops Display App</h1>
+    <p class="text-muted">This is the homepage for customers to view shops and products.</p>
 
-        <div class="text-start">
-            <div class="section-title">For Shop Owners</div>
-            <a href="{{ url_for('shop_register') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-plus"></i> Register Shop</a>
-            <a href="{{ url_for('shop_login') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-sign-in-alt"></i> Shop Login</a>
+    <div class="text-start">
+      <div class="section-title">For Shop Owners</div>
+      <a href="{{ url_for('shop_register') }}" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-user-plus"></i> Register Shop
+      </a>
+      <a href="{{ url_for('shop_login') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-sign-in-alt"></i> Shop Login
+      </a>
 
-            <div class="section-title">For Customers</div>
-            <a href="{{ url_for('view_shops') }}" class="btn btn-outline-success btn-sm"><i class="fas fa-store-alt"></i> Browse Shops</a>
-            <a href="{{ url_for('customer_register') }}" class="btn btn-outline-info btn-sm"><i class="fas fa-user"></i> Register</a>
-            <a href="{{ url_for('view_cart') }}" class="btn btn-outline-dark btn-sm"><i class="fas fa-shopping-cart"></i> View Cart</a>
-        </div>
+      <div class="section-title">For Customers</div>
+      <a href="{{ url_for('view_shops') }}" class="btn btn-outline-success btn-sm">
+        <i class="fas fa-store-alt"></i> Browse Shops
+      </a>
+      <a href="{{ url_for('customer_register') }}" class="btn btn-outline-info btn-sm">
+        <i class="fas fa-user"></i> Register
+      </a>
+      <a href="{{ url_for('view_cart') }}" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-shopping-cart"></i> View Cart
+      </a>
     </div>
+  </div>
 </div>
 
 <!-- Footer -->
 <footer>
-    &copy; 2025 Local Shops App | Built with Flask & Bootstrap
+  &copy; 2025 Local Shops App | Built with Flask & Bootstrap
 </footer>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Dark/Light mode toggle
+  function toggleMode() {
+    document.documentElement.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", document.documentElement.classList.contains("dark-mode"));
+  }
+
+  // Auto-load saved mode
+  window.onload = () => {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.documentElement.classList.add("dark-mode");
+    }
+  };
+</script>
 </body>
 </html>

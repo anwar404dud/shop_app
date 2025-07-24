@@ -1,145 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Checkout</title>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
   </script>
+  <style>
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.35;
+      z-index: -1;
+    }
+    .dark body::before {
+      opacity: 0.25;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 dark:text-white min-h-screen">
+
   {% include 'navbar.html' %}
 
-  <!-- Header + Dark Mode Toggle -->
-  <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
-    <h2 class="text-2xl font-bold mb-2">🧾 Checkout</h2>
-    <label class="flex items-center space-x-2">
-      <input type="checkbox" id="darkToggle" class="toggle-checkbox">
-      <span class="text-sm text-gray-700 dark:text-gray-300">Dark Mode</span>
-    </label>
-  </div>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl sm:text-3xl font-bold">🧾 Checkout</h2>
+      <label class="flex items-center space-x-2 text-sm">
+        <input type="checkbox" id="darkToggle" class="toggle-checkbox" />
+        <span>Dark Mode</span>
+      </label>
+    </div>
 
-  <!-- Flash Messages -->
-  {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <div class="max-w-6xl mx-auto px-4 space-y-2">
-        {% for message in messages %}
-          <div class="alert flex items-center bg-green-100 border border-green-400 text-green-800 px-4 py-2 rounded animate-fade-in shadow">
-            ✅ {{ message }}
-          </div>
+      <div class="mb-4 space-y-2">
+        {% for msg in messages %}
+        <div class="alert bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded shadow">
+          ✅ {{ msg }}
+        </div>
         {% endfor %}
       </div>
     {% endif %}
-  {% endwith %}
+    {% endwith %}
 
-  <div class="max-w-6xl mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Form area -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Coupon -->
+        <form method="POST" class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <div class="flex gap-2">
+            <input type="text" name="coupon_code" value="{{ coupon_code or '' }}" placeholder="Enter coupon code..." class="flex-1 rounded border px-2 py-1 dark:bg-gray-900" />
+            <button type="submit" name="apply_coupon" value="1" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">
+              Apply
+            </button>
+          </div>
+        </form>
 
-    <!-- Left: Form -->
-    <div class="lg:col-span-2 space-y-6">
+        <!-- Delivery form -->
+        <form method="POST" class="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+          <input type="hidden" name="place_order" value="1" />
+          <input type="hidden" name="coupon_code" value="{{ coupon_code }}" />
 
-      <!-- Coupon Field -->
-      <form method="POST" class="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-2">
-        <label class="font-semibold block">🔖 Apply Coupon</label>
-        <div class="flex gap-2">
-          <input type="text" name="coupon_code" value="{{ coupon_code or '' }}" placeholder="Enter coupon code..." class="flex-grow px-2 py-1 rounded border dark:bg-gray-900 dark:text-white">
-          <button name="apply_coupon" value="1" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Apply</button>
-        </div>
-      </form>
+          <div>
+            <label class="font-semibold">🚚 Delivery Type</label>
+            <select name="delivery_type" id="delivery_type" class="w-full rounded border px-2 py-1 dark:bg-gray-900">
+              <option value="delivery">Delivery</option>
+              <option value="pickup">Pickup</option>
+              <option value="cod">Cash on Delivery (COD)</option>
+            </select>
+          </div>
 
-      <!-- Delivery Form -->
-      <form method="POST" class="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
-        <input type="hidden" name="place_order" value="1">
-        <input type="hidden" name="coupon_code" value="{{ coupon_code }}">
+          <div>
+            <label class="font-semibold">📍 Pincode</label>
+            <input type="text" name="pincode" id="pincode" maxlength="6" class="w-full rounded border px-2 py-1 dark:bg-gray-900" placeholder="e.g. 500008" required />
+          </div>
 
-        <div>
-          <label class="font-semibold">🚚 Delivery Type</label>
-          <select name="delivery_type" id="delivery_type" class="w-full px-2 py-1 rounded border mt-1 dark:bg-gray-900 dark:text-white">
-            <option value="delivery">Delivery</option>
-            <option value="pickup">Pickup</option>
-          </select>
-        </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="font-semibold">Town/City</label>
+              <input type="text" name="city" id="city" class="w-full rounded border px-2 py-1 dark:bg-gray-900" readonly required />
+            </div>
+            <div>
+              <label class="font-semibold">District</label>
+              <input type="text" name="district" id="district" class="w-full rounded border px-2 py-1 dark:bg-gray-900" readonly required />
+            </div>
+          </div>
 
-        <div>
-          <label class="font-semibold">🏠 Address</label>
-          <input type="text" name="address" id="address" required class="w-full px-2 py-1 rounded border mt-1 dark:bg-gray-900 dark:text-white">
-        </div>
+          <div>
+            <label class="font-semibold">State</label>
+            <input type="text" name="state" id="state" class="w-full rounded border px-2 py-1 dark:bg-gray-900" readonly required />
+          </div>
 
-        <div class="flex flex-wrap justify-between gap-4">
-          <a href="{{ url_for('show_cart') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">← Back to Cart</a>
-          <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Place Order</button>
-        </div>
-      </form>
-    </div>
+          <div>
+            <label class="font-semibold">🏠 Address</label>
+            <textarea name="address" id="address" rows="2" class="w-full rounded border px-2 py-1 dark:bg-gray-900" placeholder="Flat / Locality / Landmark" required></textarea>
+          </div>
 
-    <!-- Right: Summary -->
-    <div class="space-y-4 sticky top-20">
-      <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-4">
-        <h3 class="text-lg font-bold text-gray-800 dark:text-white">🛍 Order Summary</h3>
+          <div class="flex flex-wrap justify-between gap-4">
+            <a href="{{ url_for('show_cart') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">← Back to Cart</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Place Order</button>
+          </div>
+        </form>
+      </div>
 
-        {% for item in cart_items %}
-          <div class="flex gap-4 items-center border-b pb-2">
-            <img src="{{ url_for('static', filename='uploads/' ~ item[4]) }}" loading="lazy" class="w-16 h-16 object-cover rounded border">
+      <!-- Order summary -->
+      <div class="sticky top-16 space-y-4">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-4">
+          <h3 class="text-lg font-bold">🛍 Order Summary</h3>
+          {% for item in cart_items %}
+          <div class="flex items-center gap-4 border-b pb-2">
+            <img src="{{ url_for('static', filename='uploads/' ~ item[4]) }}" loading="lazy" class="w-16 h-16 object-cover rounded border" />
             <div class="flex-1">
-              <p class="font-medium text-sm">{{ item[1] }}</p>
+              <p class="font-medium">{{ item[1] }}</p>
               <p class="text-sm text-gray-600 dark:text-gray-400">x{{ item[3] }} — ₹{{ item[2] * item[3] }}</p>
             </div>
           </div>
-        {% endfor %}
-
-        <div class="text-right space-y-1">
-          {% if discount %}
+          {% endfor %}
+          <div class="text-right space-y-1">
+            {% if discount %}
             <div class="text-sm text-green-600 dark:text-green-400">Discount ({{ discount_percent }}%): -₹{{ discount_amount }}</div>
-          {% endif %}
-          <div class="font-bold text-lg">Total: ₹{{ total }}</div>
+            {% endif %}
+            <div class="font-bold">Total: ₹{{ total }}</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script>
-    // Delivery toggle logic
-    document.getElementById('delivery_type').addEventListener('change', function () {
-      const address = document.getElementById('address');
-      if (this.value === 'pickup') {
-        address.value = 'Pickup - No address required';
-        address.readOnly = true;
-      } else {
-        address.value = '';
-        address.readOnly = false;
-      }
-    });
-
-    // Flash message auto-dismiss
-    setTimeout(() => {
-      document.querySelectorAll('.alert').forEach(el => {
-        el.classList.add('opacity-0', 'transition-opacity', 'duration-1000');
-        setTimeout(() => el.remove(), 1000);
-      });
-    }, 3000);
-
-    // Dark mode toggle persistence
-    const toggle = document.getElementById('darkToggle');
+    // Dark-mode toggle
+    const chk = document.getElementById('darkToggle');
     const html = document.documentElement;
-    toggle.addEventListener('change', () => {
+    chk.addEventListener('change', () => {
       html.classList.toggle('dark');
       localStorage.setItem('darkMode', html.classList.contains('dark'));
     });
     if (localStorage.getItem('darkMode') === 'true') {
       html.classList.add('dark');
-      toggle.checked = true;
+      chk.checked = true;
     }
+
+    // Delivery toggle logic
+    document.getElementById('delivery_type').addEventListener('change', function () {
+      const addr = document.getElementById('address');
+      if (this.value === 'pickup') {
+        addr.value = 'Pickup - No address required';
+        addr.readOnly = true;
+      } else {
+        addr.value = '';
+        addr.readOnly = false;
+      }
+    });
+
+    // Pincode API lookup
+    document.getElementById('pincode').addEventListener('blur', async function () {
+      const pin = this.value.trim();  // 'this' works only in regular function
+
+      if (pin.length === 6) {
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+          const data = await res.json();
+          const info = data[0].PostOffice?.[0];
+          if (info) {
+            document.getElementById('city').value = info.Block || info.District;
+            document.getElementById('district').value = info.District;
+            document.getElementById('state').value = info.State;
+          }
+        } catch { /* ignore */ }
+      }
+    });
+
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(el => {
+        el.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+        setTimeout(() => el.remove(), 700);
+      });
+    }, 3000);
   </script>
 
   <style>
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fade-in 0.4s ease-in-out;
-    }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .animate-fade-in { animation: fade-in 0.4s ease-in-out; }
   </style>
 </body>
 </html>

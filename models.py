@@ -170,6 +170,28 @@ def create_tables():
             FOREIGN KEY(product_id) REFERENCES products(id)
         )
     ''')
+    
+     # ✅ Alter orders table to add new fields
+    try:
+        c.execute("ALTER TABLE orders ADD COLUMN pincode TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        c.execute("ALTER TABLE orders ADD COLUMN city TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        c.execute("ALTER TABLE orders ADD COLUMN district TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        c.execute("ALTER TABLE orders ADD COLUMN state TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        c.execute("ALTER TABLE orders ADD COLUMN price REAL")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()

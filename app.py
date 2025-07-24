@@ -35,12 +35,13 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 # from flask_dance.contrib.google import make_google_blueprint, google
 from werkzeug.utils import secure_filename
 import sqlite3
+from datetime import datetime
 from models import create_tables
 create_tables()
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change to a strong random key
+app.secret_key = '0d6e8e0841fcd6495e8d83e01c7725ec'  # Change to a strong random key
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
 # ✅ Home Page
@@ -474,74 +475,6 @@ def remove_cart(cart_id):
     flash("Item removed from cart.")
     return redirect(url_for('show_cart'))
 
-# @app.route('/checkout', methods=['GET', 'POST'])
-# def checkout():
-#     if 'customer_id' not in session:
-#         flash('Please log in to checkout.')
-#         return redirect(url_for('customer_login'))
-
-#     delivery_type = request.form('delivery_type')
-#     address = request.form('address')
-#     customer_id = session['customer_id']
-#     # customer_id = session['customer_id']
-#     # delivery_type = request.form.get('delivery_type')
-#     # address = request.form.get('address')
-#     conn = sqlite3.connect('db.sqlite3')
-#     c = conn.cursor()
-
-#     # Get all cart items for the customer
-#     c.execute('SELECT product_id, quantity FROM cart WHERE customer_id = ?', (customer_id,))
-#     cart_items = c.fetchall()
-
-#     # Insert each cart item as a separate order row
-#     for product_id, quantity in cart_items:
-#         c.execute('''
-#             INSERT INTO orders (customer_id, product_id, quantity, delivery_type, address, status, created_at)
-#             VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))
-#         ''', (customer_id, product_id, quantity, delivery_type, address))
-
-#     # Clear cart
-#     c.execute('DELETE FROM cart WHERE customer_id = ?', (customer_id,))
-#     conn.commit()
-#     conn.close()
-
-#     flash('Order placed successfully!')
-#     return redirect(url_for('view_shops'))
-
-# @app.route('/checkout', methods=['GET', 'POST'])
-# def checkout():
-#     if 'customer_id' not in session:
-#         flash('Please log in to checkout.')
-#         return redirect(url_for('customer_login'))
-
-#     if request.method == 'POST':
-#         delivery_type = request.form.get('delivery_type')
-#         address = request.form.get('address')
-#         customer_id = session['customer_id']
-
-#         conn = sqlite3.connect('db.sqlite3')
-#         c = conn.cursor()
-
-#         # Get all cart items for the customer
-#         c.execute('SELECT product_id, quantity FROM cart WHERE customer_id = ?', (customer_id,))
-#         cart_items = c.fetchall()
-
-#         # Insert each cart item as a separate order row
-#         for product_id, quantity in cart_items:
-#             c.execute('''
-#                 INSERT INTO orders (customer_id, product_id, quantity, method, delivery_type, address, status, created_at)
-#                 VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
-#             ''', (customer_id, product_id, quantity, 'cod', delivery_type, address))
-
-#         # Clear cart
-#         c.execute('DELETE FROM cart WHERE customer_id = ?', (customer_id,))
-#         conn.commit()
-#         conn.close()
-
-#         flash('Order placed successfully!')
-#         return redirect(url_for('show_cart'))
-
-#     return render_template('checkout.html')  # Optional: render a form if using GET method
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -549,27 +482,26 @@ def checkout():
         flash('Please log in to checkout.')
         return redirect(url_for('customer_login'))
 
+    # customer_id = session['customer_id']
+    # conn = get_db_connection()
     customer_id = session['customer_id']
     conn = sqlite3.connect('db.sqlite3')
+    conn.row_factory = sqlite3.Row  # ✅ enables dict-like access
     c = conn.cursor()
+    
 
-    c.execute('''
-        SELECT cart.id, products.name, products.price, cart.quantity, products.image
-        FROM cart
-        JOIN products ON cart.product_id = products.id
-        WHERE cart.customer_id = ?
-    ''', (customer_id,))
-    cart_items = c.fetchall()
-
-    # Base total
-    subtotal = sum(item[2] * item[3] for item in cart_items)
-
+    cart_items = conn.execute('''
+        SELECT c.id, p.name, p.price, c.quantity, p.image
+        FROM cart c JOIN products p ON c.product_id = p.id
+        WHERE c.customer_id = ?
+    ''', (customer_id,)).fetchall()
+    print("CART ITEMS >>>", cart_items)
+    subtotal = sum(float(item[2]) * int(item[3]) for item in cart_items)
     discount = 0
     discount_percent = 0
     coupon_code = request.form.get('coupon_code') or ''
 
     if request.method == 'POST':
-        # Coupon apply logic
         if 'apply_coupon' in request.form:
             if coupon_code.lower() == 'save10':
                 discount_percent = 10
@@ -578,28 +510,42 @@ def checkout():
             else:
                 flash('Invalid coupon code')
             total = subtotal - discount
-            return render_template('checkout.html', cart_items=cart_items, total=total, discount=discount, discount_percent=discount_percent, coupon_code=coupon_code)
+            return render_template('checkout.html', cart_items=cart_items,
+                                   total=total, discount=discount,
+                                   discount_percent=discount_percent,
+                                   coupon_code=coupon_code)
 
-        # Placing order logic
         if 'place_order' in request.form:
             delivery_type = request.form.get('delivery_type')
+            pincode = request.form.get('pincode')
+            city = request.form.get('city')
+            district = request.form.get('district')
+            state = request.form.get('state')
             address = request.form.get('address')
-            method = 'cod'
+            order_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
             for item in cart_items:
-                product_id, quantity = item[0], item[3]
-                c.execute('''
-                    INSERT INTO orders (customer_id, product_id, quantity, method, delivery_type, address, status, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
-                ''', (customer_id, product_id, quantity, method, delivery_type, address))
-            c.execute('DELETE FROM cart WHERE customer_id = ?', (customer_id,))
+                conn.execute('''
+                    INSERT INTO orders (customer_id, product_id, quantity, price,
+                                        delivery_type, pincode, city, district, state,
+                                        address, status, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)
+                ''', (customer_id, item['id'], item['quantity'], item['price'],
+                      delivery_type, pincode, city, district, state,
+                      address, order_date))
+
+            conn.execute('DELETE FROM cart WHERE customer_id = ?', (customer_id,))
             conn.commit()
-            conn.close()
             flash('Order placed successfully!')
+
             return redirect(url_for('customer_orders'))
 
-    # Default GET case
     total = subtotal - discount
-    return render_template('checkout.html', cart_items=cart_items, total=total, discount=discount, discount_percent=discount_percent, coupon_code=coupon_code)
+    conn.close()
+    return render_template('checkout.html', cart_items=cart_items,
+                           total=total, discount=discount,
+                           discount_percent=discount_percent,
+                           coupon_code=coupon_code)
 
 
 # @app.route('/orders', methods=['GET', 'POST'])
@@ -625,6 +571,39 @@ def checkout():
 
 #     return render_template('customer_orders.html', orders=orders)
 
+# @app.route('/orders', methods=['GET', 'POST'])
+# def customer_orders():
+#     if 'customer_id' not in session:
+#         flash('Please log in to view orders.')
+#         return redirect(url_for('customer_login'))
+
+#     status_filter = request.args.get('status', '')
+
+    # conn = sqlite3.connect('db.sqlite3')
+    # c = conn.cursor()
+
+#     query = '''
+#         SELECT orders.id, products.name, orders.quantity, products.price,
+#             orders.method, orders.delivery_type, orders.address,
+#             orders.status, orders.created_at, products.image
+#         FROM orders
+#         JOIN products ON orders.product_id = products.id
+#         WHERE orders.customer_id = ?
+#     '''
+#     params = [session['customer_id']]
+
+#     if status_filter:
+#         query += " AND orders.status = ?"
+#         params.append(status_filter)
+
+#     query += " ORDER BY orders.created_at DESC"
+
+#     c.execute(query, tuple(params))
+#     orders = c.fetchall()
+#     conn.close()
+
+#     return render_template('customer_orders.html', orders=orders, status_filter=status_filter)
+
 @app.route('/orders', methods=['GET', 'POST'])
 def customer_orders():
     if 'customer_id' not in session:
@@ -633,30 +612,55 @@ def customer_orders():
 
     status_filter = request.args.get('status', '')
 
+    customer_id = session.get('customer_id')
     conn = sqlite3.connect('db.sqlite3')
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
 
-    query = '''
-        SELECT orders.id, products.name, orders.quantity, products.price,
-            orders.method, orders.delivery_type, orders.address,
-            orders.status, orders.created_at, products.image
-        FROM orders
-        JOIN products ON orders.product_id = products.id
-        WHERE orders.customer_id = ?
-    '''
-    params = [session['customer_id']]
-
     if status_filter:
-        query += " AND orders.status = ?"
-        params.append(status_filter)
+        c.execute("""
+            SELECT orders.id as order_id, products.name as product_name, orders.quantity,
+                   products.price, orders.method as payment_method,
+                   orders.delivery_type as delivery_method, orders.address,
+                   orders.status, orders.created_at as order_time,
+                   products.image
+            FROM orders
+            LEFT JOIN products ON orders.product_id = products.id
+            WHERE orders.customer_id = ? AND orders.status = ?
+            ORDER BY orders.created_at DESC
+        """, (customer_id, status_filter))
+    else:
+        c.execute("""
+            SELECT orders.id as order_id, products.name as product_name, orders.quantity,
+                   products.price, orders.method as payment_method,
+                   orders.delivery_type as delivery_method, orders.address,
+                   orders.status, orders.created_at as order_time,
+                   products.image
+            FROM orders
+            LEFT JOIN products ON orders.product_id = products.id
+            WHERE orders.customer_id = ?
+            ORDER BY orders.created_at DESC
+        """, (customer_id,))
 
-    query += " ORDER BY orders.created_at DESC"
-
-    c.execute(query, tuple(params))
-    orders = c.fetchall()
+    rows = c.fetchall()
     conn.close()
 
+    # Convert to dict and parse order_time
+    orders = []
+    for row in rows:
+        order = dict(row)
+        if 'order_time' in order and order['order_time']:
+            try:
+                order['order_time'] = datetime.strptime(order['order_time'], '%Y-%m-%d %H:%M:%S')
+            except Exception as e:
+                print(f"Error parsing order_time: {e}")
+                order['order_time'] = None
+        orders.append(order)
+
     return render_template('customer_orders.html', orders=orders, status_filter=status_filter)
+
+
+
 
 
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
@@ -741,6 +745,20 @@ def inject_user_data():
 #     user_info = resp.json()
 #     # Do something with user_info
 #     return redirect(url_for("shop_dashboard"))  # example
+
+@app.route('/remove_order/<int:order_id>', methods=['POST'])
+def remove_order(order_id):
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+
+    # Delete the order with matching ID
+    cursor.execute('DELETE FROM orders WHERE id = ?', (order_id,))
+    conn.commit()
+    conn.close()
+
+    flash('Order removed successfully.', 'success')
+    return redirect(url_for('customer_orders'))
+
 
 
 # Run Flask

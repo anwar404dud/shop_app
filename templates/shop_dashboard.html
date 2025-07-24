@@ -17,6 +17,21 @@
       document.documentElement.classList.remove('dark');
     }
   </script>
+  <style>
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.35;
+      z-index: -1;
+    }
+    .dark body::before {
+      opacity: 0.25;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition duration-300">
 

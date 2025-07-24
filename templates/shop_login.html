@@ -40,6 +40,21 @@
         padding: 0 0.25rem;
       }
     </style>
+    <style>
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.35;
+      z-index: -1;
+    }
+    .dark body::before {
+      opacity: 0.25;
+    }
+  </style>
 </head>
 
 
@@ -48,6 +63,9 @@
     <div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 space-y-6">
 
         <div class="flex justify-between items-center mb-4">
+            <a href="{{ url_for('index') }}" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition duration-300">
+              🏠 Home
+            </a>
             <h2 class="text-2xl font-bold">🔐 Shop Login</h2>
             <button onclick="toggleTheme()" class="text-sm text-blue-500 dark:text-blue-300 underline">Toggle Theme</button>
         </div>

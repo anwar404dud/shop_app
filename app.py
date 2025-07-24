@@ -1,35 +1,4 @@
-# from flask import Flask, render_template, request, redirect, url_for, session
-# import os
 
-# app = Flask(__name__)
-# app.secret_key = 'your_secret_key'  # Replace with a secure key
-# app.config['UPLOAD_FOLDER'] = 'uploads'
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
-# @app.route('/shop/login')
-# def shop_login():
-#     return render_template('shop_login.html')
-
-# @app.route('/shop/register')
-# def shop_register():
-#     return render_template('shop_register.html')
-
-# @app.route('/shop/dashboard')
-# def shop_dashboard():
-#     # Add login check logic here
-#     return render_template('shop_dashboard.html')
-
-# @app.route('/shop/add-product')
-# def add_product():
-#     return render_template('add_product.html')
-
-# if __name__ == '__main__':
-#     if not os.path.exists('uploads'):
-#         os.makedirs('uploads')
-#     app.run(debug=True)
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 # from flask_dance.contrib.google import make_google_blueprint, google
@@ -41,7 +10,7 @@ create_tables()
 import os
 
 app = Flask(__name__)
-app.secret_key = '0d6e8e0841fcd6495e8d83e01c7725ec'  # Change to a strong random key
+app.secret_key = 'your_secret_key'  # Change to a strong random key
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
 # ✅ Home Page
@@ -49,29 +18,7 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 def index():
     return render_template('index.html')
 
-# ✅ Shop Registration
-# @app.route('/shop/register', methods=['GET', 'POST'])
-# def shop_register():
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         shop_type = request.form['shop_type']
-#         username = request.form['username']
-#         password = request.form['password']
-#         contact = request.form['contact']
-#         address = request.form['address']
 
-#         conn = sqlite3.connect('db.sqlite3')
-#         c = conn.cursor()
-#         try:
-#             c.execute('INSERT INTO shops (name, shop_type, username, password, contact, address) VALUES (?, ?, ?, ?, ?, ?)',
-#                       (name, shop_type, username, password, contact, address))
-#             conn.commit()
-#         except sqlite3.IntegrityError:
-#             return "⚠️ Username already exists. Try a different one."
-#         conn.close()
-#         return redirect(url_for('shop_login'))
-
-#     return render_template('shop_register.html')
 
 UPLOAD_FOLDER = 'static/shop_logos'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -133,19 +80,7 @@ def shop_login():
 
     return render_template('shop_login.html')
 
-# ✅ Shop Dashboard (protected)
-# @app.route('/shop/dashboard')
-# def shop_dashboard():
-#     if 'shop_id' not in session:
-#         return redirect(url_for('shop_login'))
-#     conn = sqlite3.connect('db.sqlite3')
-#     c = conn.cursor()
-#     c.execute('SELECT * FROM products WHERE shop_id = ?', (session['shop_id'],))
-#     products = c.fetchall()
-#     conn.close()
 
-#     return render_template('shop_dashboard.html', shop_name=session['shop_name'], products=products)
-    # return render_template('shop_dashboard.html', shop_name=session['shop_name'])
 
 @app.route('/shop/dashboard')
 def shop_dashboard():
@@ -290,32 +225,7 @@ def customer_login():
 
     return render_template('customer_login.html')
 
-# ✅ Add product to cart
-# @app.route('/add-to-cart/<int:product_id>', methods=['POST'])
-# def add_to_cart(product_id):
-#     if 'customer_id' not in session:
-#         return redirect(url_for('customer_login'))
 
-#     customer_id = session['customer_id']
-
-#     conn = sqlite3.connect('db.sqlite3')
-#     c = conn.cursor()
-
-#     # Check if item already in cart
-#     c.execute('SELECT * FROM cart WHERE customer_id = ? AND product_id = ?', (customer_id, product_id))
-#     item = c.fetchone()
-
-#     if item:
-#         # Increase quantity by 1
-#         c.execute('UPDATE cart SET quantity = quantity + 1 WHERE id = ?', (item[0],))
-#     else:
-#         # Insert new item with quantity = 1
-#         c.execute('INSERT INTO cart (customer_id, product_id, quantity) VALUES (?, ?, ?)', (customer_id, product_id, 1))
-
-#     conn.commit()
-#     conn.close()
-
-#     return redirect(url_for('view_shops'))  # Redirect back to shop view
 
 @app.route('/add_to_cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
@@ -348,20 +258,7 @@ def add_to_cart(product_id):
     return redirect(url_for('view_shops'))
 
 
-# def get_db_connection():
-#     conn = sqlite3.connect('db.sqlite3')
-#     conn.row_factory = sqlite3.Row
-#     return conn
 
-# def get_cart_count():
-#     if 'customer_id' not in session:
-#         return 0
-#     conn = get_db_connection()
-#     cur = conn.cursor()
-#     cur.execute("SELECT SUM(quantity) FROM cart WHERE customer_id=?", (session['customer_id'],))
-#     result = cur.fetchone()
-#     conn.close()
-#     return result[0] if result[0] else 0
 
 
 
@@ -418,19 +315,7 @@ def show_cart():
 
     return render_template('cart.html', cart_items=cart_items)
 
-# ✅ Update Cart Quantity
-# @app.route('/cart/update/<int:cart_id>', methods=['POST'])
-# def update_cart(cart_id):
-#     quantity = int(request.form['quantity'])
 
-#     conn = sqlite3.connect('db.sqlite3')
-#     c = conn.cursor()
-#     c.execute('UPDATE cart SET quantity = ? WHERE id = ?', (quantity, cart_id))
-#     conn.commit()
-#     conn.close()
-
-#     flash("Cart updated successfully!")
-#     return redirect(url_for('show_cart'))
 
 @app.route('/cart/update/<int:cart_id>', methods=['POST'])
 def update_cart(cart_id):
@@ -548,61 +433,6 @@ def checkout():
                            coupon_code=coupon_code)
 
 
-# @app.route('/orders', methods=['GET', 'POST'])
-# def customer_orders():
-#     if 'customer_id' not in session:
-#         flash('Please log in to view orders.')
-#         return redirect(url_for('customer_login'))
-
-#     conn = sqlite3.connect('db.sqlite3')
-#     c = conn.cursor()
-#     c.execute('''
-#         SELECT orders.id, products.name, orders.quantity, products.price,
-#             orders.method, orders.delivery_type, orders.address,
-#             orders.status, orders.created_at
-#         FROM orders
-#         JOIN products ON orders.product_id = products.id
-#         WHERE orders.customer_id = ?
-#         ORDER BY orders.created_at DESC
-#     ''', (session['customer_id'],))
-
-#     orders = c.fetchall()
-#     conn.close()
-
-#     return render_template('customer_orders.html', orders=orders)
-
-# @app.route('/orders', methods=['GET', 'POST'])
-# def customer_orders():
-#     if 'customer_id' not in session:
-#         flash('Please log in to view orders.')
-#         return redirect(url_for('customer_login'))
-
-#     status_filter = request.args.get('status', '')
-
-    # conn = sqlite3.connect('db.sqlite3')
-    # c = conn.cursor()
-
-#     query = '''
-#         SELECT orders.id, products.name, orders.quantity, products.price,
-#             orders.method, orders.delivery_type, orders.address,
-#             orders.status, orders.created_at, products.image
-#         FROM orders
-#         JOIN products ON orders.product_id = products.id
-#         WHERE orders.customer_id = ?
-#     '''
-#     params = [session['customer_id']]
-
-#     if status_filter:
-#         query += " AND orders.status = ?"
-#         params.append(status_filter)
-
-#     query += " ORDER BY orders.created_at DESC"
-
-#     c.execute(query, tuple(params))
-#     orders = c.fetchall()
-#     conn.close()
-
-#     return render_template('customer_orders.html', orders=orders, status_filter=status_filter)
 
 @app.route('/orders', methods=['GET', 'POST'])
 def customer_orders():

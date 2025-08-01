@@ -115,10 +115,10 @@
           <h3 class="text-lg font-bold">🛍 Order Summary</h3>
           {% for item in cart_items %}
           <div class="flex items-center gap-4 border-b pb-2">
-            <img src="{{ url_for('static', filename='uploads/' ~ item[4]) }}" loading="lazy" class="w-16 h-16 object-cover rounded border" />
+            <img src="{{ url_for('static', filename='uploads/' ~ item.image) }}" loading="lazy" class="w-16 h-16 object-cover rounded border" />
             <div class="flex-1">
-              <p class="font-medium">{{ item[1] }}</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">x{{ item[3] }} — ₹{{ item[2] * item[3] }}</p>
+              <p class="font-medium">{{ item.name }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">x{{ item.quantity }} — ₹{{ item.price * item.quantity }}</p>
             </div>
           </div>
           {% endfor %}
